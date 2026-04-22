@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "SKIN AI",
+    "slug": "skinai",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": false,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0D0A0B"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.skinai.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "SKIN AI a besoin de votre caméra pour photographier votre visage et réaliser l'analyse cutanée.",
+        "NSPhotoLibraryUsageDescription": "SKIN AI a besoin d'accéder à vos photos pour analyser votre peau."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0D0A0B"
+      },
+      "package": "com.skinai.app",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.READ_MEDIA_IMAGES"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "SKIN AI accède à vos photos pour analyser votre peau.",
+          "cameraPermission": "SKIN AI utilise la caméra pour photographier votre visage."
+        }
+      ],
+      "expo-secure-store"
+    ]
+  }
+}

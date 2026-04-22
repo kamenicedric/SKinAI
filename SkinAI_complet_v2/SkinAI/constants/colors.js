@@ -1,0 +1,17 @@
+export default {
+  bg: "#0D0A0B",
+  surface: "#161113",
+  card: "#1E181A",
+  border: "#2E2226",
+  gold: "#C9A84C",
+  goldLight: "#E2C97E",
+  goldDim: "#7A6230",
+  rose: "#D4768A",
+  roseDim: "#7A3D4A",
+  cream: "#F2EBE1",
+  muted: "#8A7A7F",
+  white: "#FFFFFF",
+  green: "#6BBF8E",
+  orange: "#E09455",
+  red: "#D46060",
+};
