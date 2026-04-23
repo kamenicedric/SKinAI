@@ -44,7 +44,8 @@
           "cameraPermission": "SKIN AI utilise la caméra pour photographier votre visage."
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-font"
     ],
     "extra": {
       "eas": {
