@@ -5,7 +5,7 @@ import axios from "axios";
 // Assure-toi que ton téléphone et PC sont sur le même réseau WiFi
 // Ex: http://192.168.1.100:3000
 // En production : https://skinai-backend.railway.app
-const BACKEND_URL = "http://TON_IP_LOCALE:3000"; // ← À changer
+const BACKEND_URL = "https://s-kin-ai.vercel.app"; // ← À changer
 
 // ── Appel au backend sécurisé (clé API cachée côté serveur) ───
 export async function analyzeSkin(base64Image, mediaType, skinType, concerns, userId = null) {
