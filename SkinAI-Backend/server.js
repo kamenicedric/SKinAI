@@ -13,31 +13,24 @@ const { errorHandler, notFound } = require("./middleware/errorHandler");
 
 const app = express();
 
-// Railway injecte le PORT automatiquement — NE PAS le fixer en dur
-const PORT = process.env.PORT || 3000;
-
 // ── Sécurité ──────────────────────────────────────────────────
 app.use(helmet());
 
 // ── CORS ──────────────────────────────────────────────────────
-const allowedOrigins = process.env.ALLOWED_ORIGINS === "*"
-  ? "*"
-  : (process.env.ALLOWED_ORIGINS || "*").split(",").map((s) => s.trim());
-
 app.use(cors({
-  origin: allowedOrigins,
+  origin: process.env.ALLOWED_ORIGINS || "*",
   methods: ["GET", "POST", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
 
 // ── Logging ───────────────────────────────────────────────────
-app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
+app.use(morgan("dev"));
 
-// ── Body parsing (15MB max pour images base64) ────────────────
+// ── Body parsing (15MB pour images base64) ────────────────────
 app.use(express.json({ limit: "15mb" }));
 app.use(express.urlencoded({ extended: true, limit: "15mb" }));
 
-// ── Rate limiter global ───────────────────────────────────────
+// ── Rate limiter ──────────────────────────────────────────────
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: parseInt(process.env.RATE_LIMIT_GENERAL) || 100,
@@ -52,43 +45,36 @@ app.use("/api/analyze", analyzeRoutes);
 app.use("/api/history", historyRoutes);
 app.use("/api/products", productsRoutes);
 
-// ── Health check Railway ──────────────────────────────────────
+// ── Health check ──────────────────────────────────────────────
 app.get("/", (req, res) => {
   res.status(200).json({
     name: "✦ SKIN AI API",
     version: "1.0.0",
     status: "running ✓",
-    environment: process.env.NODE_ENV || "production",
+    platform: "Vercel Serverless",
     anthropic_configured: !!process.env.ANTHROPIC_API_KEY,
     supabase_configured: !!process.env.SUPABASE_URL,
     endpoints: {
-      "POST /api/analyze":              "Lancer une analyse cutanée IA",
-      "GET  /api/analyze/health":       "Statut de la clé API",
-      "GET  /api/history/:userId":      "Historique d'un utilisateur",
-      "GET  /api/history/detail/:id":   "Détail d'une analyse",
-      "GET  /api/products":             "Catalogue produits",
-      "GET  /api/products/categories/list": "Catégories disponibles",
+      "POST /api/analyze":             "Analyse cutanée IA",
+      "GET  /api/analyze/health":      "Statut clé API",
+      "GET  /api/history/:userId":     "Historique utilisateur",
+      "GET  /api/products":            "Catalogue produits",
     },
     timestamp: new Date().toISOString(),
   });
 });
 
-// ── 404 & Error handlers ──────────────────────────────────────
+// ── 404 & Errors ──────────────────────────────────────────────
 app.use(notFound);
 app.use(errorHandler);
 
-// ── Démarrage ─────────────────────────────────────────────────
-app.listen(PORT, "0.0.0.0", () => {
-  console.log("");
-  console.log("  ✦ ─────────────────────────────── ✦");
-  console.log("         SKIN AI Backend démarré");
-  console.log("  ✦ ─────────────────────────────── ✦");
-  console.log(`  🚀  Port         : ${PORT}`);
-  console.log(`  🌍  Environnement: ${process.env.NODE_ENV || "production"}`);
-  console.log(`  🤖  Anthropic    : ${process.env.ANTHROPIC_API_KEY ? "✓ OK" : "✗ MANQUANTE — configurer dans Railway"}`);
-  console.log(`  🗄️   Supabase    : ${process.env.SUPABASE_URL ? "✓ OK" : "○ Non configuré (optionnel)"}`);
-  console.log("  ✦ ─────────────────────────────── ✦");
-  console.log("");
-});
+// ── Dev local uniquement ──────────────────────────────────────
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`\n  ✦ SKIN AI Backend → http://localhost:${PORT}\n`);
+  });
+}
 
+// ── Export pour Vercel Serverless ─────────────────────────────
 module.exports = app;
