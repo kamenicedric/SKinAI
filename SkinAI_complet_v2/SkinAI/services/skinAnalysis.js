@@ -9,20 +9,29 @@ const BACKEND_URL = "https://s-kin-ai.vercel.app"; // ← À changer
 
 // ── Appel au backend sécurisé (clé API cachée côté serveur) ───
 export async function analyzeSkin(base64Image, mediaType, skinType, concerns, userId = null) {
-  const response = await axios.post(
-    `${BACKEND_URL}/api/analyze`,
-    {
-      image: base64Image,
-      mediaType: mediaType || "image/jpeg",
-      skinType,
-      concerns,
-      userId,
-    },
-    {
-      headers: { "Content-Type": "application/json" },
-      timeout: 60000,
+  const payload = {
+    image: base64Image,
+    mediaType: mediaType || "image/jpeg",
+    skinType,
+    concerns,
+    userId,
+  };
+  const requestConfig = {
+    headers: { "Content-Type": "application/json" },
+    timeout: 60000,
+  };
+  let response;
+
+  try {
+    response = await axios.post(`${BACKEND_URL}/api/analyze`, payload, requestConfig);
+  } catch (error) {
+    // Compat temporaire: certains déploiements exposent encore /api/analyze/analyze.
+    if (error?.response?.status === 404) {
+      response = await axios.post(`${BACKEND_URL}/api/analyze/analyze`, payload, requestConfig);
+    } else {
+      throw error;
     }
-  );
+  }
 
   if (!response.data.success) {
     throw new Error(response.data.error || "Erreur inconnue.");

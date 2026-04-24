@@ -13,18 +13,16 @@ import C from "./constants/colors";
 
 const Tab = createBottomTabNavigator();
 
-function TabIcon({ emoji, label, focused }) {
+function TabIcon({ emoji }) {
   return (
-    <View style={{
-      alignItems: "center", justifyContent: "center",
-      paddingVertical: 6, paddingHorizontal: 12,
-      borderRadius: 16, gap: 3,
-      backgroundColor: focused ? C.gold + "20" : "transparent",
-    }}>
+    <View
+      style={{
+        alignItems: "center",
+        justifyContent: "center",
+        paddingTop: 2,
+      }}
+    >
       <Text style={{ fontSize: 20 }}>{emoji}</Text>
-      <Text style={{ fontSize: 10, color: focused ? C.gold : C.muted, fontWeight: focused ? "700" : "400" }}>
-        {label}
-      </Text>
     </View>
   );
 }
@@ -44,27 +42,37 @@ function AppNavigator() {
               backgroundColor: C.bg,
               borderTopColor: C.border,
               borderTopWidth: 1,
-              height: 64 + bottomInset,
+              height: 68 + bottomInset,
               paddingBottom: bottomInset,
-              paddingTop: 4,
+              paddingTop: 6,
             },
-            tabBarShowLabel: false,
+            tabBarItemStyle: {
+              paddingHorizontal: 4,
+            },
+            tabBarShowLabel: true,
+            tabBarActiveTintColor: C.gold,
+            tabBarInactiveTintColor: C.muted,
+            tabBarLabelStyle: {
+              fontSize: 11,
+              fontWeight: "600",
+              marginBottom: 2,
+            },
           }}
         >
           <Tab.Screen
-            name="Analyser"
+            name="Accueil"
             component={AnalyzeScreen}
-            options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="✦" label="Analyser" focused={focused} /> }}
+            options={{ tabBarIcon: () => <TabIcon emoji="✦" /> }}
           />
           <Tab.Screen
             name="Historique"
             component={HistoryScreen}
-            options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="📋" label="Historique" focused={focused} /> }}
+            options={{ tabBarIcon: () => <TabIcon emoji="📋" /> }}
           />
           <Tab.Screen
             name="Profil"
             component={ProfileScreen}
-            options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="👤" label="Profil" focused={focused} /> }}
+            options={{ tabBarIcon: () => <TabIcon emoji="👤" /> }}
           />
         </Tab.Navigator>
       </NavigationContainer>

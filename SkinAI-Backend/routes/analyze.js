@@ -27,7 +27,7 @@ const analyzeLimiter = rateLimit({
 //   concerns   : string[]  (ex: ["Acné", "Taches"])
 //   userId     : string? (UUID Supabase optionnel)
 router.post(
-  "/analyze",
+  "/",
   analyzeLimiter,
   validateAnalyze,
   checkImageSize,
