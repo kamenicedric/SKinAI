@@ -4,11 +4,11 @@
     "slug": "skinai",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/android-chrome-512x512.png",
     "userInterfaceStyle": "dark",
     "newArchEnabled": false,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/android-chrome-512x512.png",
       "resizeMode": "contain",
       "backgroundColor": "#0D0A0B"
     },
@@ -22,7 +22,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/android-chrome-512x512.png",
         "backgroundColor": "#0D0A0B"
       },
       "package": "com.skinai.app",
@@ -34,7 +34,7 @@
       ]
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon-48x48.png"
     },
     "plugins": [
       [
@@ -49,7 +49,7 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "926b3088-6bd0-4014-ac34-61e7032e2a1f"
+        "projectId": "1232d08a-f66d-4bfd-a2d1-601913ab528d"
       }
     },
     "owner": "timova"
