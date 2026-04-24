@@ -35,6 +35,12 @@ function getTagStyle(type) {
   return map[type] || map.info;
 }
 
+function getApiErrorMessage(error) {
+  const data = error?.response?.data;
+  const detailMsg = Array.isArray(data?.details) && data.details.length > 0 ? data.details[0] : null;
+  return detailMsg || data?.error || error?.message || "Erreur inconnue.";
+}
+
 export default function AnalyzeScreen() {
   const [image, setImage] = useState(null);
   const [base64, setBase64] = useState(null);
@@ -136,7 +142,7 @@ export default function AnalyzeScreen() {
       };
       await saveHistory([entry, ...history].slice(0, 20));
     } catch (e) {
-      setError(e?.response?.data?.error?.message || e.message || "Erreur inconnue.");
+      setError(getApiErrorMessage(e));
     } finally {
       setLoading(false);
       setLoadingStep("");

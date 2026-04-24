@@ -7,15 +7,23 @@ import axios from "axios";
 // En production : https://skinai-backend.railway.app
 const BACKEND_URL = "https://s-kin-ai.vercel.app"; // ← À changer
 
+function normalizeBase64Image(input) {
+  if (!input || typeof input !== "string") return input;
+  // Retire un éventuel préfixe data URI et les retours à la ligne.
+  return input.replace(/^data:image\/[a-zA-Z0-9.+-]+;base64,/, "").replace(/\s/g, "");
+}
+
 // ── Appel au backend sécurisé (clé API cachée côté serveur) ───
 export async function analyzeSkin(base64Image, mediaType, skinType, concerns, userId = null) {
   const payload = {
-    image: base64Image,
+    image: normalizeBase64Image(base64Image),
     mediaType: mediaType || "image/jpeg",
     skinType,
     concerns,
-    userId,
   };
+  if (typeof userId === "string" && userId.trim().length > 0) {
+    payload.userId = userId.trim();
+  }
   const requestConfig = {
     headers: { "Content-Type": "application/json" },
     timeout: 60000,
@@ -33,8 +41,10 @@ export async function analyzeSkin(base64Image, mediaType, skinType, concerns, us
     }
   }
 
-  if (!response.data.success) {
-    throw new Error(response.data.error || "Erreur inconnue.");
+  if (!response?.data?.success) {
+    const details = response?.data?.details;
+    const detailMsg = Array.isArray(details) && details.length > 0 ? details[0] : null;
+    throw new Error(detailMsg || response?.data?.error || "Erreur inconnue.");
   }
 
   return response.data.data;

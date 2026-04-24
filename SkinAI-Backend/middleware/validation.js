@@ -26,7 +26,7 @@ const analyzeSchema = Joi.object({
     )
     .max(5)
     .default([]),
-  userId: Joi.string().uuid().optional(),
+  userId: Joi.string().uuid().allow(null).optional(),
 });
 
 // ── Middleware de validation ───────────────────────────────────
