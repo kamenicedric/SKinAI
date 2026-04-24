@@ -2,7 +2,7 @@ import React from "react";
 import { Text, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { SafeAreaProvider } from "react-native-safe-area-context";
+import { SafeAreaProvider, useSafeAreaInsets } from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { StatusBar } from "expo-status-bar";
 
@@ -29,43 +29,54 @@ function TabIcon({ emoji, label, focused }) {
   );
 }
 
+function AppNavigator() {
+  const insets = useSafeAreaInsets();
+  const bottomInset = Math.max(insets.bottom, 10);
+
+  return (
+    <>
+      <StatusBar style="light" backgroundColor={C.bg} />
+      <NavigationContainer>
+        <Tab.Navigator
+          screenOptions={{
+            headerShown: false,
+            tabBarStyle: {
+              backgroundColor: C.bg,
+              borderTopColor: C.border,
+              borderTopWidth: 1,
+              height: 64 + bottomInset,
+              paddingBottom: bottomInset,
+              paddingTop: 4,
+            },
+            tabBarShowLabel: false,
+          }}
+        >
+          <Tab.Screen
+            name="Analyser"
+            component={AnalyzeScreen}
+            options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="✦" label="Analyser" focused={focused} /> }}
+          />
+          <Tab.Screen
+            name="Historique"
+            component={HistoryScreen}
+            options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="📋" label="Historique" focused={focused} /> }}
+          />
+          <Tab.Screen
+            name="Profil"
+            component={ProfileScreen}
+            options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="👤" label="Profil" focused={focused} /> }}
+          />
+        </Tab.Navigator>
+      </NavigationContainer>
+    </>
+  );
+}
+
 export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <StatusBar style="light" backgroundColor={C.bg} />
-        <NavigationContainer>
-          <Tab.Navigator
-            screenOptions={{
-              headerShown: false,
-              tabBarStyle: {
-                backgroundColor: C.bg,
-                borderTopColor: C.border,
-                borderTopWidth: 1,
-                height: 72,
-                paddingBottom: 8,
-                paddingTop: 4,
-              },
-              tabBarShowLabel: false,
-            }}
-          >
-            <Tab.Screen
-              name="Analyser"
-              component={AnalyzeScreen}
-              options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="✦" label="Analyser" focused={focused} /> }}
-            />
-            <Tab.Screen
-              name="Historique"
-              component={HistoryScreen}
-              options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="📋" label="Historique" focused={focused} /> }}
-            />
-            <Tab.Screen
-              name="Profil"
-              component={ProfileScreen}
-              options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="👤" label="Profil" focused={focused} /> }}
-            />
-          </Tab.Navigator>
-        </NavigationContainer>
+        <AppNavigator />
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
-  View, Text, ScrollView, StyleSheet, TextInput,
+  View, Text, ScrollView, StyleSheet,
   TouchableOpacity, ActivityIndicator, Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -9,7 +9,7 @@ import * as ImageManipulator from "expo-image-manipulator";
 
 import C from "../constants/colors";
 import { analyzeSkin } from "../services/skinAnalysis";
-import { saveApiKey, getApiKey, saveHistory, getHistory } from "../services/storage";
+import { saveHistory, getHistory } from "../services/storage";
 import CaptureZone from "../components/CaptureZone";
 import AnalyzeButton from "../components/AnalyzeButton";
 import ZoneBar from "../components/ZoneBar";
@@ -36,7 +36,6 @@ function getTagStyle(type) {
 }
 
 export default function AnalyzeScreen() {
-  const [apiKey, setApiKey] = useState("");
   const [image, setImage] = useState(null);
   const [base64, setBase64] = useState(null);
   const [mediaType, setMediaType] = useState("image/jpeg");
@@ -46,10 +45,6 @@ export default function AnalyzeScreen() {
   const [loadingStep, setLoadingStep] = useState("");
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
-
-  useEffect(() => {
-    getApiKey().then((k) => k && setApiKey(k));
-  }, []);
 
   async function pickImage() {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -120,12 +115,6 @@ export default function AnalyzeScreen() {
 
   async function handleAnalyze() {
     if (!base64) return;
-    const key = apiKey.trim();
-    if (!key) {
-      Alert.alert("Clé API manquante", "Entrez votre clé API Anthropic pour continuer.");
-      return;
-    }
-    await saveApiKey(key);
     setLoading(true);
     setError(null);
     setResult(null);
@@ -134,7 +123,7 @@ export default function AnalyzeScreen() {
       setLoadingStep("Préparation de l'image…");
       await new Promise((r) => setTimeout(r, 400));
       setLoadingStep("Analyse des zones cutanées…");
-      const data = await analyzeSkin(base64, mediaType, skinType, concerns, key);
+      const data = await analyzeSkin(base64, mediaType, skinType, concerns);
       setResult(data);
 
       const history = await getHistory();
@@ -166,24 +155,6 @@ export default function AnalyzeScreen() {
       </View>
 
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32, gap: 20 }}>
-
-        {/* Clé API */}
-        <View>
-          <Text style={styles.sectionTitle}>🔑 Clé API Anthropic</Text>
-          <View style={styles.card}>
-            <TextInput
-              style={styles.input}
-              placeholder="sk-ant-..."
-              placeholderTextColor={C.muted}
-              value={apiKey}
-              onChangeText={setApiKey}
-              secureTextEntry
-              autoCapitalize="none"
-            />
-            <Text style={styles.inputHint}>Obtenir sur console.anthropic.com · Stockée de façon sécurisée</Text>
-          </View>
-        </View>
-
         {/* Capture */}
         <View>
           <Text style={styles.sectionTitle}>📷 Photo du visage</Text>
@@ -352,12 +323,6 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: C.border,
     padding: 16, gap: 12, marginBottom: 4,
   },
-  input: {
-    backgroundColor: C.surface, borderRadius: 12,
-    borderWidth: 1, borderColor: C.border,
-    padding: 12, fontSize: 13, color: C.cream, letterSpacing: 0.3,
-  },
-  inputHint: { fontSize: 11, color: C.muted, lineHeight: 16 },
   chip: {
     paddingHorizontal: 16, paddingVertical: 10,
     borderRadius: 14, borderWidth: 1, borderColor: C.border,
