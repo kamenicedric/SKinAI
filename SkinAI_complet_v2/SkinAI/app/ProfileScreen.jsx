@@ -1,18 +1,16 @@
 import React, { useState, useCallback } from "react";
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import C from "../constants/colors";
-import { getHistory, getApiKey, deleteApiKey } from "../services/storage";
+import { getHistory } from "../services/storage";
 
 export default function ProfileScreen() {
   const [history, setHistory] = useState([]);
-  const [hasKey, setHasKey] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
       getHistory().then(setHistory);
-      getApiKey().then((k) => setHasKey(!!k));
     }, [])
   );
 
@@ -20,21 +18,10 @@ export default function ProfileScreen() {
     ? Math.round(history.reduce((a, b) => a + b.score, 0) / history.length)
     : null;
 
-  async function handleDeleteKey() {
-    Alert.alert("Supprimer la clé", "Êtes-vous sûr ?", [
-      { text: "Annuler", style: "cancel" },
-      {
-        text: "Supprimer",
-        style: "destructive",
-        onPress: async () => { await deleteApiKey(); setHasKey(false); },
-      },
-    ]);
-  }
-
   const stats = [
     { label: "Analyses effectuées", value: history.length.toString(), icon: "🔬" },
     { label: "Score moyen", value: avgScore ? `${avgScore}/100` : "—", icon: "📊" },
-    { label: "Clé API", value: hasKey ? "Configurée ✓" : "Non configurée", icon: "🔑" },
+    { label: "Conseils actifs", value: "4", icon: "💎" },
   ];
 
   const tips = [
@@ -82,16 +69,6 @@ export default function ProfileScreen() {
             </View>
           </View>
         ))}
-
-        {/* Gestion clé API */}
-        {hasKey && (
-          <>
-            <Text style={styles.sectionTitle}>⚙️ Paramètres</Text>
-            <TouchableOpacity style={styles.deleteBtn} onPress={handleDeleteKey}>
-              <Text style={styles.deleteBtnText}>🗑️ Supprimer la clé API</Text>
-            </TouchableOpacity>
-          </>
-        )}
 
         {/* Disclaimer */}
         <View style={styles.disclaimer}>
@@ -145,12 +122,6 @@ const styles = StyleSheet.create({
   tipEmoji: { fontSize: 22, marginTop: 2 },
   tipTitle: { fontSize: 15, color: C.cream, fontWeight: "700", marginBottom: 4 },
   tipDesc: { fontSize: 13, color: C.muted, lineHeight: 18 },
-  deleteBtn: {
-    backgroundColor: C.red + "15", borderRadius: 16,
-    borderWidth: 1, borderColor: C.red + "44",
-    padding: 14, alignItems: "center",
-  },
-  deleteBtnText: { fontSize: 14, color: C.red, fontWeight: "600" },
   disclaimer: {
     backgroundColor: C.surface, borderRadius: 14,
     borderWidth: 1, borderColor: C.border,
