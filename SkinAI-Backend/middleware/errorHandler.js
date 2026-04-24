@@ -7,11 +7,21 @@ function errorHandler(err, req, res, next) {
   if (err.isAxiosError) {
     const status = err.response?.status;
     const msg = err.response?.data?.error?.message;
+    const normalizedMsg = (msg || "").toLowerCase();
 
     if (status === 401) {
       return res.status(401).json({
         success: false,
         error: "Clé API Anthropic invalide ou expirée.",
+      });
+    }
+    if (
+      status === 400 &&
+      (normalizedMsg.includes("credit balance is too low") || normalizedMsg.includes("insufficient"))
+    ) {
+      return res.status(402).json({
+        success: false,
+        error: "Crédits IA insuffisants. Rechargez votre compte",
       });
     }
     if (status === 429) {
