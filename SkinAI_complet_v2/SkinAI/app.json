@@ -3,6 +3,9 @@
     "name": "SKIN AI",
     "slug": "skinai",
     "version": "1.0.0",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "orientation": "portrait",
     "icon": "./assets/android-chrome-512x512.png",
     "userInterfaceStyle": "dark",
@@ -35,6 +38,11 @@
     },
     "web": {
       "favicon": "./assets/favicon-48x48.png"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/1232d08a-f66d-4bfd-a2d1-601913ab528d",
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0
     },
     "plugins": [
       [
