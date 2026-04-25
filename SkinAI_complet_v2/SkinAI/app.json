@@ -2,6 +2,7 @@
   "expo": {
     "name": "SKIN AI",
     "slug": "skinai",
+    "scheme": "skinai",
     "version": "1.0.0",
     "runtimeVersion": {
       "policy": "appVersion"
