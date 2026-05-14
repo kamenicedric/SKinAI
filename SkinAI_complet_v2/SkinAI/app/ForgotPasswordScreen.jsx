@@ -1,28 +1,34 @@
 import React, { useState } from "react";
 import {
-  View, Text, TextInput, TouchableOpacity,
-  StyleSheet, KeyboardAvoidingView, Platform,
-  ScrollView, ActivityIndicator,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { LinearGradient } from "expo-linear-gradient";
 import { resetPassword } from "../services/supabase";
-
-const C = {
-  bg: "#0D0A0B", card: "#1E181A", border: "#2E2226",
-  gold: "#C9A84C", goldDim: "#7A6230", rose: "#D4768A",
-  cream: "#F2EBE1", muted: "#8A7A7F", red: "#D46060", green: "#6BBF8E",
-};
+import C from "../constants/colors";
 
 export default function ForgotPasswordScreen({ navigation }) {
-  const [email, setEmail]     = useState("");
+  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [sent, setSent]       = useState(false);
-  const [error, setError]     = useState("");
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
 
   function validate() {
-    if (!email.trim()) { setError("Email requis"); return false; }
-    if (!/\S+@\S+\.\S+/.test(email)) { setError("Email invalide"); return false; }
+    if (!email.trim()) {
+      setError("Veuillez renseigner votre email.");
+      return false;
+    }
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      setError("Format email invalide.");
+      return false;
+    }
     setError("");
     return true;
   }
@@ -34,38 +40,32 @@ export default function ForgotPasswordScreen({ navigation }) {
       await resetPassword(email.trim());
       setSent(true);
     } catch (err) {
-      setError(err.message || "Une erreur est survenue.");
+      setError(err.message || "Envoi impossible pour le moment.");
     } finally {
       setLoading(false);
     }
   }
 
-  // ── Écran de succès ───────────────────────────────────────────
   if (sent) {
     return (
       <SafeAreaView style={styles.safe}>
         <ScrollView contentContainerStyle={[styles.scroll, { justifyContent: "center" }]}>
-          <View style={styles.successWrap}>
-            <LinearGradient colors={[C.green + "33", C.gold + "22"]} style={styles.successCircle}>
-              <Text style={{ fontSize: 52 }}>📩</Text>
-            </LinearGradient>
-            <Text style={styles.successTitle}>Email envoyé !</Text>
+          <View style={styles.successCard}>
+            <Text style={styles.successTitle}>Email envoyé</Text>
             <Text style={styles.successText}>
-              Un lien de réinitialisation a été envoyé à{"\n"}
-              <Text style={{ color: C.gold, fontWeight: "700" }}>{email}</Text>
+              Un lien de réinitialisation a été envoyé à {"\n"}
+              <Text style={styles.emailHighlight}>{email}</Text>
             </Text>
             <Text style={styles.successHint}>
-              Vérifie ta boîte mail (et le dossier spam). Le lien expire dans 1 heure.
+              Vérifiez votre boîte mail et vos courriers indésirables. Le lien est valable 1 heure.
             </Text>
 
-            <TouchableOpacity onPress={() => setSent(false)} style={styles.retryBtn}>
-              <Text style={styles.retryText}>Renvoyer l'email</Text>
+            <TouchableOpacity onPress={() => setSent(false)} style={styles.secondaryBtn}>
+              <Text style={styles.secondaryBtnText}>Renvoyer le lien</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-              <LinearGradient colors={[C.gold, C.rose]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.loginBtn}>
-                <Text style={styles.loginBtnText}>✦  Retour à la connexion</Text>
-              </LinearGradient>
+            <TouchableOpacity onPress={() => navigation.navigate("Login")} style={styles.primaryBtn}>
+              <Text style={styles.primaryBtnText}>Retour à la connexion</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -73,77 +73,69 @@ export default function ForgotPasswordScreen({ navigation }) {
     );
   }
 
-  // ── Formulaire ────────────────────────────────────────────────
   return (
     <SafeAreaView style={styles.safe}>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-            <Text style={styles.backText}>← Retour</Text>
+            <Text style={styles.backText}>Retour</Text>
           </TouchableOpacity>
 
-          {/* Illustration */}
-          <View style={styles.illustrationWrap}>
-            <LinearGradient colors={[C.gold + "22", C.rose + "11"]} style={styles.illustrationCircle}>
-              <Text style={{ fontSize: 56 }}>🔑</Text>
-            </LinearGradient>
+          <View style={styles.headerCard}>
+            <Text style={styles.pageTitle}>Réinitialiser le mot de passe</Text>
+            <Text style={styles.pageSubtitle}>
+              Entrez votre adresse email. Nous vous envoyons un lien sécurisé pour créer un nouveau mot de passe.
+            </Text>
           </View>
 
-          <Text style={styles.pageTitle}>Mot de passe oublié ?</Text>
-          <Text style={styles.pageSubtitle}>
-            Pas de panique ! Entre ton adresse email et on t'envoie un lien pour réinitialiser ton mot de passe.
-          </Text>
-
-          {/* Champ email */}
           <View style={styles.fieldWrap}>
-            <Text style={styles.fieldLabel}>ADRESSE EMAIL</Text>
+            <Text style={styles.fieldLabel}>Adresse email</Text>
             <View style={[styles.inputWrap, error && styles.inputError]}>
-              <Text style={styles.inputIcon}>✉️</Text>
               <TextInput
                 style={styles.input}
-                placeholder="ton@email.com"
+                placeholder="nom@email.com"
                 placeholderTextColor={C.muted}
                 value={email}
-                onChangeText={v => { setEmail(v); setError(""); }}
+                onChangeText={(v) => {
+                  setEmail(v);
+                  setError("");
+                }}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
               />
             </View>
-            {error ? <Text style={styles.errorText}>⚠ {error}</Text> : null}
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
           </View>
 
-          {/* Info */}
           <View style={styles.infoCard}>
-            <Text style={styles.infoIcon}>ℹ️</Text>
             <Text style={styles.infoText}>
-              Le lien de réinitialisation est valable pendant 1 heure. Assure-toi d'utiliser la même adresse email avec laquelle tu t'es inscrit(e).
+              Utilisez la même adresse email que lors de votre inscription. Le lien est valide pendant 1 heure.
             </Text>
           </View>
 
-          {/* Bouton envoyer */}
-          <TouchableOpacity onPress={handleReset} disabled={loading} activeOpacity={0.85}>
-            <LinearGradient
-              colors={loading ? [C.goldDim, "#5A3040"] : [C.gold, C.rose]}
-              start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
-              style={styles.sendBtn}
-            >
-              {loading
-                ? <ActivityIndicator color="#fff" size="small" />
-                : <Text style={styles.sendBtnText}>📩  Envoyer le lien</Text>
-              }
-            </LinearGradient>
+          <TouchableOpacity
+            onPress={handleReset}
+            disabled={loading}
+            activeOpacity={0.9}
+            style={[styles.primaryBtn, loading && styles.primaryBtnDisabled]}
+          >
+            {loading ? (
+              <ActivityIndicator color={C.bg} size="small" />
+            ) : (
+              <Text style={styles.primaryBtnText}>Envoyer le lien</Text>
+            )}
           </TouchableOpacity>
 
-          {/* Retour connexion */}
-          <TouchableOpacity onPress={() => navigation.navigate("Login")} style={styles.backLoginWrap}>
-            <Text style={styles.backLoginText}>
-              Je me souviens de mon mot de passe{"  "}
-              <Text style={styles.backLoginLink}>Se connecter</Text>
+          <TouchableOpacity onPress={() => navigation.navigate("Login")} style={{ alignItems: "center", marginTop: 16 }}>
+            <Text style={styles.secondaryText}>
+              Vous vous souvenez du mot de passe ? <Text style={styles.secondaryLink}>Se connecter</Text>
             </Text>
           </TouchableOpacity>
-
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -151,37 +143,75 @@ export default function ForgotPasswordScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  safe:               { flex: 1, backgroundColor: C.bg },
-  scroll:             { flexGrow: 1, padding: 24, paddingBottom: 48 },
-  backBtn:            { marginBottom: 8 },
-  backText:           { fontSize: 14, color: C.gold, fontWeight: "600" },
-  illustrationWrap:   { alignItems: "center", marginVertical: 32 },
-  illustrationCircle: { width: 130, height: 130, borderRadius: 65, alignItems: "center", justifyContent: "center" },
-  pageTitle:          { fontSize: 26, fontWeight: "700", color: C.cream, marginBottom: 10 },
-  pageSubtitle:       { fontSize: 14, color: C.muted, lineHeight: 22, marginBottom: 28 },
-  fieldWrap:          { gap: 7, marginBottom: 20 },
-  fieldLabel:         { fontSize: 11, color: C.gold, letterSpacing: 2, fontWeight: "600" },
-  inputWrap:          { flexDirection: "row", alignItems: "center", backgroundColor: C.card, borderRadius: 16, borderWidth: 1, borderColor: C.border, paddingHorizontal: 14, height: 54 },
-  inputError:         { borderColor: C.red },
-  inputIcon:          { fontSize: 16, marginRight: 10 },
-  input:              { flex: 1, color: C.cream, fontSize: 15 },
-  errorText:          { fontSize: 12, color: C.red },
-  infoCard:           { flexDirection: "row", gap: 10, backgroundColor: C.card, borderRadius: 14, borderWidth: 1, borderColor: C.border, padding: 14, marginBottom: 24 },
-  infoIcon:           { fontSize: 16, marginTop: 1 },
-  infoText:           { flex: 1, fontSize: 13, color: C.muted, lineHeight: 20 },
-  sendBtn:            { borderRadius: 16, height: 56, alignItems: "center", justifyContent: "center", elevation: 6, marginBottom: 20 },
-  sendBtnText:        { fontSize: 17, fontWeight: "700", color: "#fff", letterSpacing: 0.5 },
-  backLoginWrap:      { alignItems: "center" },
-  backLoginText:      { fontSize: 13, color: C.muted },
-  backLoginLink:      { color: C.gold, fontWeight: "700" },
-  // Succès
-  successWrap:        { alignItems: "center", paddingVertical: 40, gap: 20 },
-  successCircle:      { width: 140, height: 140, borderRadius: 70, alignItems: "center", justifyContent: "center", marginBottom: 8 },
-  successTitle:       { fontSize: 28, fontWeight: "700", color: C.cream },
-  successText:        { fontSize: 15, color: C.muted, textAlign: "center", lineHeight: 24 },
-  successHint:        { fontSize: 13, color: C.muted, textAlign: "center", lineHeight: 20, opacity: 0.7 },
-  retryBtn:           { paddingVertical: 10 },
-  retryText:          { fontSize: 14, color: C.gold, fontWeight: "600" },
-  loginBtn:           { borderRadius: 16, height: 54, paddingHorizontal: 32, alignItems: "center", justifyContent: "center", elevation: 6 },
-  loginBtnText:       { fontSize: 16, fontWeight: "700", color: "#fff", letterSpacing: 0.5 },
+  safe: { flex: 1, backgroundColor: C.bg },
+  scroll: { flexGrow: 1, padding: 24, paddingBottom: 48 },
+  backBtn: { marginBottom: 12, alignSelf: "flex-start" },
+  backText: { fontSize: 14, color: C.gold, fontWeight: "600" },
+  headerCard: {
+    marginBottom: 22,
+    padding: 16,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: C.border,
+    backgroundColor: C.surface,
+  },
+  pageTitle: { fontSize: 27, fontWeight: "700", color: C.cream, marginBottom: 8 },
+  pageSubtitle: { fontSize: 15, color: C.muted, lineHeight: 21 },
+  fieldWrap: { gap: 8, marginBottom: 20 },
+  fieldLabel: { fontSize: 13, color: C.cream, fontWeight: "600" },
+  inputWrap: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: C.card,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: C.border,
+    paddingHorizontal: 14,
+    minHeight: 54,
+  },
+  inputError: { borderColor: C.red },
+  input: { flex: 1, color: C.cream, fontSize: 15 },
+  errorText: { fontSize: 12, color: C.red },
+  infoCard: {
+    backgroundColor: C.card,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: C.border,
+    padding: 14,
+    marginBottom: 22,
+  },
+  infoText: { fontSize: 13, color: C.muted, lineHeight: 20 },
+  primaryBtn: {
+    borderRadius: 12,
+    height: 56,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: C.gold,
+  },
+  primaryBtnDisabled: { backgroundColor: C.goldDim },
+  primaryBtnText: { fontSize: 16, fontWeight: "700", color: C.bg },
+  secondaryText: { fontSize: 14, color: C.muted, textAlign: "center", lineHeight: 20 },
+  secondaryLink: { color: C.gold, fontWeight: "700" },
+  successCard: {
+    backgroundColor: C.surface,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: C.border,
+    padding: 22,
+    gap: 14,
+  },
+  successTitle: { fontSize: 26, fontWeight: "700", color: C.cream, textAlign: "center" },
+  successText: { fontSize: 15, color: C.muted, textAlign: "center", lineHeight: 22 },
+  emailHighlight: { color: C.gold, fontWeight: "700" },
+  successHint: { fontSize: 13, color: C.muted, textAlign: "center", lineHeight: 20, opacity: 0.8 },
+  secondaryBtn: {
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: C.border,
+    height: 48,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 4,
+  },
+  secondaryBtnText: { color: C.cream, fontWeight: "600", fontSize: 14 },
 });

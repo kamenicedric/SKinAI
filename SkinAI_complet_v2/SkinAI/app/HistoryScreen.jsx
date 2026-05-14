@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import C from "../constants/colors";
@@ -22,40 +22,54 @@ export default function HistoryScreen() {
   );
 
   async function clearHistory() {
-    await saveHistory([]);
-    setHistory([]);
+    Alert.alert("Effacer l'historique", "Cette action supprimera toutes les analyses enregistrées.", [
+      { text: "Annuler", style: "cancel" },
+      {
+        text: "Effacer",
+        style: "destructive",
+        onPress: async () => {
+          await saveHistory([]);
+          setHistory([]);
+        },
+      },
+    ]);
   }
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Historique</Text>
-        {history.length > 0 && (
-          <TouchableOpacity onPress={clearHistory}>
-            <Text style={styles.clearBtn}>Effacer</Text>
-          </TouchableOpacity>
-        )}
-      </View>
+      <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+        <View style={styles.headerCard}>
+          <Text style={styles.pageTitle}>Historique des diagnostics</Text>
+          <Text style={styles.pageSubtitle}>Retrouvez vos analyses passées et suivez l'évolution de votre peau.</Text>
+          {history.length > 0 ? (
+            <TouchableOpacity onPress={clearHistory} style={styles.clearBtn}>
+              <Text style={styles.clearBtnText}>Effacer l'historique</Text>
+            </TouchableOpacity>
+          ) : null}
+        </View>
 
-      <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32, gap: 12 }}>
         {history.length === 0 ? (
-          <View style={styles.empty}>
-            <Text style={styles.emptyIcon}>🗂️</Text>
-            <Text style={styles.emptyText}>Aucune analyse pour le moment</Text>
-            <Text style={styles.emptyHint}>Vos analyses apparaîtront ici après chaque diagnostic.</Text>
+          <View style={styles.emptyCard}>
+            <Text style={styles.emptyTitle}>Aucune analyse enregistrée</Text>
+            <Text style={styles.emptyText}>
+              Lancez votre premier diagnostic depuis l'onglet Accueil. Vos résultats apparaîtront ici automatiquement.
+            </Text>
           </View>
         ) : (
           history.map((h) => {
             const color = getColor(h.score);
             return (
-              <View key={h.id} style={styles.card}>
-                <View style={[styles.scoreBadge, { borderColor: color, backgroundColor: color + "20" }]}>
+              <View key={h.id} style={styles.itemCard}>
+                <View style={[styles.scoreBadge, { borderColor: color }]}>
                   <Text style={[styles.scoreNum, { color }]}>{h.score}</Text>
+                  <Text style={styles.scoreOver}>/100</Text>
                 </View>
-                <View style={styles.info}>
-                  <Text style={styles.skinType}>Peau {h.type}</Text>
-                  <Text style={styles.resume} numberOfLines={2}>{h.resume}</Text>
-                  <Text style={styles.date}>📅 {h.date}</Text>
+                <View style={styles.itemInfo}>
+                  <Text style={styles.itemTitle}>Type de peau : {h.type}</Text>
+                  <Text style={styles.itemResume} numberOfLines={2}>
+                    {h.resume}
+                  </Text>
+                  <Text style={styles.itemDate}>{h.date}</Text>
                 </View>
               </View>
             );
@@ -68,31 +82,62 @@ export default function HistoryScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: C.bg },
-  header: {
-    backgroundColor: C.surface, paddingHorizontal: 20, paddingVertical: 14,
-    borderBottomWidth: 1, borderBottomColor: C.border,
-    flexDirection: "row", justifyContent: "space-between", alignItems: "center",
+  scroll: { flex: 1 },
+  content: { padding: 16, paddingBottom: 32, gap: 12 },
+  headerCard: {
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: C.border,
+    backgroundColor: C.surface,
+    padding: 16,
+    gap: 8,
   },
-  title: { fontSize: 22, fontWeight: "800", color: C.cream, letterSpacing: 1 },
-  clearBtn: { fontSize: 14, color: C.red },
-  scroll: { flex: 1, paddingHorizontal: 16, paddingTop: 16 },
-  card: {
-    backgroundColor: C.card, borderRadius: 20, borderWidth: 1, borderColor: C.border,
-    padding: 16, flexDirection: "row", alignItems: "center", gap: 16,
+  pageTitle: { fontSize: 26, fontWeight: "700", color: C.cream },
+  pageSubtitle: { fontSize: 14, color: C.muted, lineHeight: 20 },
+  clearBtn: {
+    marginTop: 4,
+    alignSelf: "flex-start",
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: `${C.red}88`,
+    backgroundColor: `${C.red}15`,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  clearBtnText: { color: C.red, fontSize: 13, fontWeight: "600" },
+  emptyCard: {
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: C.border,
+    backgroundColor: C.card,
+    padding: 16,
+    gap: 8,
+  },
+  emptyTitle: { fontSize: 18, color: C.cream, fontWeight: "700" },
+  emptyText: { fontSize: 14, color: C.muted, lineHeight: 20 },
+  itemCard: {
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: C.border,
+    backgroundColor: C.card,
+    padding: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
   },
   scoreBadge: {
-    width: 56, height: 56, borderRadius: 28, borderWidth: 2,
-    alignItems: "center", justifyContent: "center",
+    width: 62,
+    height: 62,
+    borderRadius: 31,
+    borderWidth: 2,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: C.surface,
   },
-  scoreNum: { fontSize: 20, fontWeight: "800" },
-  info: { flex: 1, gap: 4 },
-  skinType: { fontSize: 16, color: C.cream, fontWeight: "700" },
-  resume: { fontSize: 12, color: C.muted, lineHeight: 18 },
-  date: { fontSize: 11, color: C.goldDim },
-  empty: {
-    alignItems: "center", paddingTop: 80, gap: 12,
-  },
-  emptyIcon: { fontSize: 48 },
-  emptyText: { fontSize: 18, color: C.muted, fontWeight: "600" },
-  emptyHint: { fontSize: 13, color: C.muted + "88", textAlign: "center", paddingHorizontal: 40 },
+  scoreNum: { fontSize: 20, fontWeight: "800", lineHeight: 21 },
+  scoreOver: { fontSize: 10, color: C.muted },
+  itemInfo: { flex: 1, gap: 4 },
+  itemTitle: { fontSize: 15, color: C.cream, fontWeight: "700" },
+  itemResume: { fontSize: 13, color: C.muted, lineHeight: 19 },
+  itemDate: { fontSize: 12, color: C.gold },
 });
